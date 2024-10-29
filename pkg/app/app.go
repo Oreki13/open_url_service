@@ -8,6 +8,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/requestid"
 	"github.com/google/uuid"
 	"open_url_service/internal/bootstrap"
+	"open_url_service/internal/router"
 	"open_url_service/pkg/config"
 	"strings"
 )

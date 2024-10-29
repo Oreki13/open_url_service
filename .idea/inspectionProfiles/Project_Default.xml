@@ -4,6 +4,7 @@
     <inspection_tool class="GoDfaErrorMayBeNotNil" enabled="true" level="WARNING" enabled_by_default="true">
       <functions>
         <function importPath="open_url_service/internal/bootstrap" name="RegistryOpenTelemetry" />
+        <function importPath="open_url_service/pkg/database/mysql" name="NewMysqlConfig" />
       </functions>
     </inspection_tool>
   </profile>

@@ -17,6 +17,7 @@ type Config struct {
 	AppConfig      `mapstructure:",squash"`
 	LoggerConfig   `mapstructure:",squash"`
 	DatabaseConfig `mapstructure:",squash"`
+	NoSleepConfig  `mapstructure:",squash"`
 }
 
 func LoadAllConfigs() (*Config, error) {

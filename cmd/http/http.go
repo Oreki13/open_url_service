@@ -1,4 +1,4 @@
-package cmd
+package http
 
 import (
 	"fmt"
@@ -15,6 +15,14 @@ func Start() {
 	}
 
 	app.InitializeApp(cnf)
+	application := app.GetServer()
 
+	//go func() {
+	//	StartServiceListener(cnf)
+	//}()
+
+	if err := application.StartServer(); err != nil {
+		logger.Fatal(fmt.Sprintf("Failed to start server: %v", err))
+	}
 
 }
