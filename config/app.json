@@ -1,0 +1,11 @@
+{
+  "app_id": "neo-skeleton",
+  "app_name": "fiber_golang",
+  "app_host": "0.0.0.0",
+  "app_port": 8991,
+  "app_debug": true,
+  "app_env": "local",
+  "app_otel_trace": false,
+  "app_otel_exporter": "",
+  "secret_key": ""
+}

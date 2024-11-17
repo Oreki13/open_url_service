@@ -5,6 +5,7 @@ import (
 	"open_url_service/internal/appctx"
 	"open_url_service/internal/controller/contract"
 	"open_url_service/internal/service"
+	"open_url_service/pkg/tracer"
 )
 
 type getAllUser struct {
@@ -12,7 +13,9 @@ type getAllUser struct {
 }
 
 func (g *getAllUser) Serve(xCtx appctx.Data) appctx.Response {
-	ctx := xCtx.FiberCtx.Context()
+	//ctx := xCtx.FiberCtx.Context()
+	ctx, span := tracer.NewSpan(xCtx.FiberCtx.Context(), "Controller.getAllUser", nil)
+	defer span.End()
 	users, err := g.service.ListUser(ctx)
 	if err != nil {
 		return *appctx.NewResponse().WithError([]appctx.ErrorResp{

@@ -21,7 +21,6 @@ type router struct {
 
 func (rtr *router) handle(hfn httpHandlerFunc, svc contract.Controller, mdws ...middleware.MiddlewareFunc) fiber.Handler {
 	return func(xCtx *fiber.Ctx) error {
-
 		//check registered middleware functions
 		if rm := middleware.FilterFunc(rtr.cfg, xCtx, mdws); rm.Code != fiber.StatusOK {
 			// return response base on middleware

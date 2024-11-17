@@ -2,8 +2,8 @@ package service
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
+	"github.com/jackc/pgx/v5"
 	"net/http"
 	"open_url_service/internal/appctx"
 	"open_url_service/internal/entity"
@@ -31,19 +31,21 @@ func (u userServiceImpl) StoreUser(ctx context.Context) appctx.Response {
 	defer span.End()
 
 	payload := entity.User{
-		ID:   1,
-		Name: "John Doe",
-		Age:  12,
+		ID:        "id",
+		Name:      "John Doe",
+		Email:     "john@mail.com",
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
 	}
 
 	// value custom logger
 	lf.Append(logger.Any("payload.id", payload.ID))
 	lf.Append(logger.Any("payload.name", payload.Name))
-	lf.Append(logger.Any("payload.age", payload.Age))
+	lf.Append(logger.Any("payload.age", payload.Email))
 
 	// start db transaction
-	tx, err := u.repo.BeginTx(ctx, &sql.TxOptions{
-		Isolation: sql.LevelSerializable,
+	tx, err := u.repo.BeginTx(ctx, pgx.TxOptions{
+		IsoLevel: pgx.Serializable,
 	})
 
 	if err != nil {
@@ -55,15 +57,17 @@ func (u userServiceImpl) StoreUser(ctx context.Context) appctx.Response {
 	txOpt := repositories.WithTransaction(tx)
 
 	_, err = u.repo.Store(ctx, entity.User{
-		Name: "John Doe",
-		Age:  12,
+		Name:      "John Doe",
+		Email:     "john@mail.com",
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
 	}, txOpt)
 	if err != nil {
 		tracer.AddSpanError(span, err)
 		logger.ErrorWithContext(ctx, fmt.Sprintf("store user got error: %v", err), lf...)
 
 		// rollback transaction
-		err := tx.Rollback()
+		err := tx.Rollback(ctx)
 		if err != nil {
 			return appctx.Response{}
 		}
@@ -73,7 +77,7 @@ func (u userServiceImpl) StoreUser(ctx context.Context) appctx.Response {
 	logger.InfoWithContext(ctx, "success store user", lf...)
 
 	// commit transaction
-	err = tx.Commit()
+	err = tx.Commit(ctx)
 	if err != nil {
 		return appctx.Response{}
 	}

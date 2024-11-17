@@ -1,0 +1,10 @@
+{
+  "log_level": "debug",
+  "log_driver": "loki",
+
+  "log_loki_host": "0.0.0.0",
+  "log_loki_port": 3100,
+
+  "log_graylog_host": "0.0.0.0",
+  "log_graylog_port": 12201
+}

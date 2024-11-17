@@ -22,9 +22,11 @@ var appServer *App
 
 func InitializeApp(cfg *config.Config) {
 	// boostrap run and initialize package dependency
-	//bootstrap.RegistryLogger(cfg)
+	bootstrap.RegistryLogger(cfg)
 	otelManager, err := bootstrap.RegistryOpenTelemetry(cfg)
+
 	if err != nil {
+
 		err := otelManager.Close()
 		if err != nil {
 			return
@@ -36,8 +38,9 @@ func InitializeApp(cfg *config.Config) {
 		cors.New(cors.Config{
 			MaxAge: 300,
 			AllowOrigins: strings.Join([]string{
-				"http://*",
-				"https://*",
+				"*",
+				//"http://*",
+				//"https://*",
 			}, ","),
 			AllowHeaders: strings.Join([]string{
 				"Origin",
@@ -52,6 +55,7 @@ func InitializeApp(cfg *config.Config) {
 				fiber.MethodHead,
 			}, ","),
 		}),
+		//otelfiber.Middleware(),
 		requestid.New(requestid.Config{
 			ContextKey: "refid",
 			Header:     "X-Reference-Id",

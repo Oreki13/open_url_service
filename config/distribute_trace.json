@@ -1,0 +1,6 @@
+{
+  "jaeger_host": "",
+  "jaeger_port": 14268,
+  "tempo_host": "",
+  "tempo_port": 4318
+}

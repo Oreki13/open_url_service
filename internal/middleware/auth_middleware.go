@@ -1,8 +1,9 @@
 package middleware
 
 import (
-	"encoding/base64"
+	"errors"
 	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt/v5"
 	"open_url_service/internal/appctx"
 	"open_url_service/pkg/config"
 	"strings"
@@ -16,22 +17,37 @@ func NewAuthMiddleware() *AuthMiddleware {
 }
 
 func (a *AuthMiddleware) Authenticate(xCtx *fiber.Ctx, conf *config.Config) appctx.Response {
-	auth := xCtx.GetReqHeaders()["Authorization"][0]
+	auth := xCtx.GetReqHeaders()["Authorization"]
+	userId := xCtx.GetReqHeaders()["X-Control-User"]
+	secretKey := []byte(conf.SecretKey)
 
-	if len(auth) == 0 {
-		return *appctx.NewResponse().WithCode(fiber.StatusUnauthorized).WithMessage("Unauthorized")
+	if len(auth) == 0 || len(userId) == 0 {
+		return *appctx.NewResponse().WithCode(fiber.StatusUnauthorized).WithMessage("Unauthorized no data")
 	}
 
-	decodeString, err := base64.StdEncoding.DecodeString(strings.TrimPrefix(auth, "Basic "))
+	trimAuth := strings.TrimPrefix(auth[0], "Bearer ")
+
+	token, err := jwt.Parse(trimAuth, func(token *jwt.Token) (interface{}, error) {
+		return secretKey, nil
+	})
 	if err != nil {
+		switch {
+		case errors.Is(err, jwt.ErrTokenExpired):
+			return *appctx.NewResponse().WithCode(fiber.StatusUnauthorized).WithMessage("Token has been expired")
+		case errors.Is(err, jwt.ErrTokenMalformed):
+			return *appctx.NewResponse().WithCode(fiber.StatusUnauthorized).WithMessage("Token is invalid")
+		}
+
 		return *appctx.NewResponse().WithCode(fiber.StatusUnauthorized).WithMessage("Unauthorized")
 	}
 
-	resultAuth := strings.Split(string(decodeString), ":")
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		if claims["id"] != userId[0] {
+			return *appctx.NewResponse().WithCode(fiber.StatusUnauthorized).WithMessage("Invalid token user")
 
-	if resultAuth[0] == "username" && resultAuth[1] == "password" {
+		}
 		return *appctx.NewResponse().WithCode(fiber.StatusOK)
 	}
+	return *appctx.NewResponse().WithCode(fiber.StatusUnauthorized).WithMessage("Unauthorized claim")
 
-	return *appctx.NewResponse().WithCode(fiber.StatusUnauthorized).WithMessage("Unauthorized")
 }

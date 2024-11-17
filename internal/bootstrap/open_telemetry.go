@@ -4,6 +4,7 @@ import (
 	"context"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.21.0"
@@ -22,13 +23,14 @@ type Provider struct {
 func RegistryOpenTelemetry(cfg *config.Config) (Provider, error) {
 	if !cfg.AppOtelTrace {
 		return Provider{
-			provider: trace.NewNoopTracerProvider(),
+			provider: sdktrace.NewTracerProvider(),
 		}, nil
 	}
 
 	var exp sdktrace.SpanExporter
 
 	exp, err := tracer.NewExporter(cfg)
+
 	if err != nil {
 		return Provider{}, err
 	}
@@ -44,6 +46,7 @@ func RegistryOpenTelemetry(cfg *config.Config) (Provider, error) {
 		)),
 	)
 	otel.SetTracerProvider(tp)
+	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
 	return Provider{
 		provider: tp,
 	}, nil

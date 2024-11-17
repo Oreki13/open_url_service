@@ -22,6 +22,5 @@ func NewExporter(cfg *config.Config) (trace.SpanExporter, error) {
 func tempoExporter(cfg *config.Config) (trace.SpanExporter, error) {
 	insecureOpt := otlptracehttp.WithInsecure()
 	endpointOpt := otlptracehttp.WithEndpoint(fmt.Sprintf("%s:%v", cfg.TempoHost, cfg.TempoPort))
-
 	return otlptracehttp.New(context.Background(), insecureOpt, endpointOpt)
 }

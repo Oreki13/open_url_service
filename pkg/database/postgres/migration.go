@@ -1,4 +1,4 @@
-package mysql
+package postgres
 
 import (
 	"flag"
@@ -63,9 +63,9 @@ func DatabaseMigration(cfg *config.Config) {
 
 	command := args[0]
 
-	sqlConfig, _ := NewMysqlConfig(cfg)
+	sqlConfig, _ := NewPgsqlConfig(cfg)
 
-	db, err := goose.OpenDBWithDriver("mysql", sqlConfig.FormatDSN())
+	db, err := goose.OpenDBWithDriver("postgres", sqlConfig.ConnString())
 
 	if err != nil {
 		log.Fatal(err)
@@ -77,7 +77,7 @@ func DatabaseMigration(cfg *config.Config) {
 		}
 	}()
 
-	arguments := []string{}
+	var arguments []string
 	if len(args) > 3 {
 		arguments = append(arguments, args[3:]...)
 	}

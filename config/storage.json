@@ -1,0 +1,11 @@
+{
+  "local_storage_basepath": "",
+  "minio_base_url": "",
+  "minio_access_key_id": "",
+  "minio_secret_access_key": "",
+  "minio_location": "",
+  "gcs_service_account_path": "",
+  "aws_region": "",
+  "aws_access_key": "",
+  "aws_access_secret": ""
+}

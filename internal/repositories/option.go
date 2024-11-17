@@ -1,14 +1,16 @@
 package repositories
 
-import "database/sql"
+import (
+	"github.com/jackc/pgx/v5"
+)
 
 type option struct {
-	tx *sql.Tx
+	tx pgx.Tx
 }
 
 type Option func(*option)
 
-func WithTransaction(tx *sql.Tx) Option {
+func WithTransaction(tx pgx.Tx) Option {
 	return func(o *option) {
 		o.tx = tx
 	}
