@@ -6,6 +6,7 @@ import (
 	"open_url_service/internal/bootstrap"
 	"open_url_service/internal/controller"
 	"open_url_service/internal/controller/contract"
+	"open_url_service/internal/controller/url"
 	"open_url_service/internal/controller/user"
 	"open_url_service/internal/handler"
 	"open_url_service/internal/middleware"
@@ -38,6 +39,9 @@ func (rtr *router) handle(hfn httpHandlerFunc, svc contract.Controller, mdws ...
 }
 
 func (rtr *router) response(fiberCtx *fiber.Ctx, resp appctx.Response) error {
+	if resp.Code == 301 && len(resp.State) != 0 {
+		return fiberCtx.Redirect(resp.State, 301)
+	}
 	fiberCtx.Set(fiber.HeaderContentType, fiber.MIMEApplicationJSON)
 	return fiberCtx.Status(resp.Code).Send(resp.Byte())
 }
@@ -48,9 +52,11 @@ func (rtr *router) Route() {
 
 	//define repositories
 	userRepo := repositories.NewUserRepositoryImpl(db)
+	urlRepo := repositories.NewFindUrlByPathImpl(db)
 
 	//define services
 	userSvc := service.NewUserServiceImpl(userRepo)
+	urlSvc := service.NewFindUrlByPath(urlRepo)
 
 	//define middleware
 	basicMiddleware := middleware.NewAuthMiddleware()
@@ -66,10 +72,14 @@ func (rtr *router) Route() {
 	//define controller
 	getAllUser := user.NewGetAllUser(userSvc)
 	storeUser := user.NewStoreUser(userSvc)
+	findUrlByPath := url.NewFindEndpointByPath(urlSvc)
 	//getTodos := todo.NewGetTodo(example)
 
 	health := controller.NewGetHealth()
 	internalV1 := rtr.fiber.Group("/api/internal/v1")
+
+	rtr.fiber.Get("/:title", rtr.handle(
+		handler.HttpRequest, findUrlByPath))
 
 	rtr.fiber.Get("/ping", rtr.handle(
 		handler.HttpRequest,

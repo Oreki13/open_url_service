@@ -10,3 +10,7 @@ type UserService interface {
 	ListUser(ctx context.Context) (*[]entity.User, error)
 	StoreUser(ctx context.Context) appctx.Response
 }
+
+type UrlService interface {
+	FindUrlByPath(ctx context.Context, path string) (*entity.Url, error)
+}

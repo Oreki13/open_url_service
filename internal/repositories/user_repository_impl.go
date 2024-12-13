@@ -3,11 +3,13 @@ package repositories
 import (
 	"context"
 	"github.com/jackc/pgx/v5"
+	"go.opentelemetry.io/otel/attribute"
 	"open_url_service/internal/entity"
 	"open_url_service/pkg/database/postgres"
 	"open_url_service/pkg/helper"
 	"open_url_service/pkg/logger"
 	"open_url_service/pkg/tracer"
+	"time"
 )
 
 type userRepositoryImpl struct {
@@ -15,15 +17,20 @@ type userRepositoryImpl struct {
 }
 
 func (u *userRepositoryImpl) ListUser(ctx context.Context) (*[]entity.User, error) {
+	ctx, span := tracer.NewSpan(ctx, "Repository.ListUser", nil)
+	defer span.End()
+
 	query := "SELECT u.id, u.name, u.email, r.name, u.created_at, u.updated_at as role FROM users u INNER JOIN role_user r ON u.role_id = r.id WHERE is_deleted = 0"
 	var results []entity.User
-	logger.Debug("DEbug test")
-	logger.Info("Info test")
-	logger.Warn("warn test")
-	logger.Error("Error test")
-	//logger.Fatal("fatar test")
+
+	start := time.Now()
 	res, err := u.db.Query(ctx, query)
+	duration := time.Since(start)
+
+	span.SetAttributes(attribute.String("DB.Query", query), attribute.Int64("DB.Duration", duration.Milliseconds()))
+
 	if err != nil {
+		span.RecordError(err)
 		return nil, err
 	}
 
@@ -37,8 +44,6 @@ func (u *userRepositoryImpl) ListUser(ctx context.Context) (*[]entity.User, erro
 
 		results = append(results, result)
 	}
-	//sum(rate(log_messages_total{app="loki",level=~"error|warn"}[1m])) by (level)
-	//{app="loki"} | logfmt | level="warn" or level="error"
 	if res.Err() != nil {
 		return nil, res.Err()
 	}

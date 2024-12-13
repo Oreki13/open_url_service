@@ -11,3 +11,7 @@ type UserRepository interface {
 	BeginTx(ctx context.Context, opts pgx.TxOptions) (pgx.Tx, error)
 	Store(ctx context.Context, payload entity.User, opts ...Option) (int, error)
 }
+
+type UrlRepository interface {
+	FindUrlByPath(ctx context.Context, path string) (*entity.Url, error)
+}
