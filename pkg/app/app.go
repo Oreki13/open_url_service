@@ -39,8 +39,6 @@ func InitializeApp(cfg *config.Config) {
 			MaxAge: 300,
 			AllowOrigins: strings.Join([]string{
 				"*",
-				//"http://*",
-				//"https://*",
 			}, ","),
 			AllowHeaders: strings.Join([]string{
 				"Origin",
@@ -50,12 +48,8 @@ func InitializeApp(cfg *config.Config) {
 			AllowMethods: strings.Join([]string{
 				fiber.MethodGet,
 				fiber.MethodPost,
-				fiber.MethodPut,
-				fiber.MethodDelete,
-				fiber.MethodHead,
 			}, ","),
 		}),
-		//otelfiber.Middleware(),
 		requestid.New(requestid.Config{
 			ContextKey: "refid",
 			Header:     "X-Reference-Id",

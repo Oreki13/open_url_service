@@ -39,7 +39,7 @@ func (rtr *router) handle(hfn httpHandlerFunc, svc contract.Controller, mdws ...
 }
 
 func (rtr *router) response(fiberCtx *fiber.Ctx, resp appctx.Response) error {
-	if resp.Code == 301 && len(resp.State) != 0 {
+	if (resp.Code == 301 || resp.Code == 308) && len(resp.State) != 0 {
 		return fiberCtx.Redirect(resp.State, 301)
 	}
 	fiberCtx.Set(fiber.HeaderContentType, fiber.MIMEApplicationJSON)

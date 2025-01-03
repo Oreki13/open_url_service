@@ -40,7 +40,7 @@ func (u *findEndpointByPath) Serve(xCtx appctx.Data) appctx.Response {
 		}).WithCode(fiber.StatusBadRequest)
 	}
 
-	return *appctx.NewResponse().WithCode(301).WithState(listUrl.Destination)
+	return *appctx.NewResponse().WithCode(308).WithState(listUrl.Destination)
 }
 
 func NewFindEndpointByPath(svc service.UrlService) contract.Controller {
